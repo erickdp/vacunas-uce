@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-responsive :aspect-ratio="16 / 9">
-      <h1 style="text-align: center; margin-bottom: 10px">Ingreso Usuarios</h1>
+      <h1 style="text-align: center; margin-bottom: 10px">Ingreso Estudiantes</h1>
       <img class="imagen" src="/doctora.svg" />
       <div class="container">
         <v-row align="center" justify="center">
@@ -317,7 +317,7 @@
 
 <script>
 export default {
-  layout: "userUniversidad",
+  layout: "admin",
   data() {
     return {
       date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -407,7 +407,7 @@ export default {
     };
   },
   mounted() {
-    // this.obtener();
+    this.obtener();
   },
   computed: {
     formTitle() {
@@ -488,19 +488,23 @@ export default {
     //     console.log(err);
     //   }
     // },
-    // async obtener() {
-    //   let user = this.$cookies.get("dataClient").usuario.nombreUsuario;
-    //   try {
-    //     const resp = await this.$axios.get(
-    //       "api/sgcnegocio/formularioImpactoComparativo/buscarFormularioImpactoPorUser/" +
-    //         user
-    //     );
-    //     this.desserts = resp.data;
-    //     (this.id = resp.data._id), console.log(resp);
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // },
+    async obtener() {
+      
+      try {
+        const resp = await this.$axios.get(
+          'api/usuario/' ,{
+            headers:{
+              Authorization: 'SGVUCE' + $$cookies.get('datos')
+            }
+          }
+            
+        );
+        this.desserts = resp.data;
+        console.log(resp);
+      } catch (err) {
+        console.log(err);
+      }
+    },
 
     // async eliminarDat() {
     //   try {

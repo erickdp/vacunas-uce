@@ -101,34 +101,29 @@ export default {
         });
         console.log(respuesta);
         this.$cookies.set("datos", respuesta);
-      
-        this.$router.push("/creacionEstudiante")
-        // if (!respuesta.data && !respuesta.data.nombre) {
-        //   this.alert = true;
-        //   this.username = "";
-        //   this.contrasena = "";
-       
-        // } else {
-        //   this.$store.commit("session/logIn", respuesta.data);
+     
+          // this.$store.commit("session/logIn", respuesta.data);
         //   this.alert = false;
-        //   let type = respuesta.data.username.roles;
+          let type = respuesta.data.maximo_role;
 
-          // if (type === "ROLE_ADMIN") {
-          //   this.$router.push("/user");
-          // } else if ((type = "ROLE_HC")) {
-          //   this.$router.push("/userUniversidad");
-          // } else if ((type = "ROLE_USER")) {
-          //   this.$router.push("/userUniversidad");
-          // }
+          if (type === "ROLE_ADMIN") {
+            this.$router.push("/creacionEstudiante");
+           }
+           else if ((type = "ROLE_HC")) {
+            this.$router.push("/registrarDosis");
+          
+          }  else {
+            this.$router.push("/principalEst");;
+          }
         // }
       } catch (err) {
         console.log(err);
         this.username = "";
         this.password = "";
-        // this.$notifier.showMessage({
-        //   content: "Corrija los campos del formulario para continuar",
-        //   color: "success",
-        // });
+        this.$notifier.showMessage({
+          content: "Corrija los campos del formulario para continuar",
+          color: "success",
+        });
       }
     },
   },
