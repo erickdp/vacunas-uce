@@ -2,29 +2,40 @@
   <v-card>
     <v-responsive :aspect-ratio="16 / 9">
       <h1 style="text-align: center; margin-bottom: 10px">
-        Ingreso Estudiantes
+        Ingreso de Administradores y Controladores
       </h1>
-      <img class="imagen" src="/doctora.svg" />
+      <img class="imagen" src="/administradores.svg" />
       <div class="container">
-        <p style="font-weight: 600">
-          Primero elija la facultad en la que desea ingresar nuevos Estudiantes:
-        </p>
-        <v-row align="center" justify="center">
-          <v-col cols="12" sm="15" md="8">
-            <v-select
-              :items="listaFacultades"
-              label="Facultad"
-              outlined
-              v-model="facul"
-              rounded
-            ></v-select>
+        <v-row>
+          <v-col cols="12">
+            <v-chip class="ma-2" color="#6398E4" outlined>
+              <v-icon left> mdi-account-cog </v-icon>
+              Elija el tipo de usuario que desea ingresar:
+              <v-switch
+                style="margin-left: 6px; padding-bottom: 15px"
+                v-model="sadmin"
+                color="#CCD5E2"
+                value="secondary"
+                label="Administrador"
+                hide-details
+              ></v-switch>
+              <v-switch
+                style="margin-left: 6px; padding-bottom: 15px"
+                v-model="scon"
+                color="#CCD5E2"
+                value="secondary"
+                label="Controlador"
+                hide-details
+              ></v-switch>
+            </v-chip>
           </v-col>
         </v-row>
+
         <v-row align="center" justify="center">
-          <v-col cols="12" sm="15" md="8" v-if="facul">
+          <v-col cols="12" sm="15" md="8" v-if="sadmin">
             <v-card-text class="elevation-12" id="card-in">
               <v-form ref="form" lazy-validation v-model="valid">
-                <p>Por favor ingrese los datos del nuevo estudiante:</p>
+                <p>Por favor ingrese los datos del nuevo administrador:</p>
                 <v-text-field
                   ref="nombres"
                   label="Nombres"
@@ -87,25 +98,6 @@
                   v-model="genero"
                   :rules="[() => !!genero || 'Campo obligatorio']"
                 ></v-select>
-
-                <v-select
-                  :items="listaCarreras"
-                  label="Carrera"
-                  v-model="carrera"
-                  outlined
-                  rounded
-                ></v-select>
-                <v-text-field
-                  ref="semestre"
-                  label="Semestre"
-                  outlined
-                  rounded
-                  v-model="semestre"
-                  type="number"
-                  :rules="[() => !!semestre || 'Campo obligatorio']"
-                  color="primary"
-                >
-                </v-text-field>
                 <v-text-field
                   ref="correo"
                   label="Correo electrónico"
@@ -117,16 +109,6 @@
                   color="primary"
                 >
                 </v-text-field>
-                <div>
-                  Tiene permisos de
-                  <strong>controlador?</strong>
-                </div>
-                <v-checkbox
-                  v-model="esControlador"
-                  color="primary"
-                  label="Si/No"
-                >
-                </v-checkbox>
               </v-form>
             </v-card-text>
 
@@ -135,6 +117,98 @@
               color="secondary"
               :disabled="!valid"
               @click="enviar"
+            >
+              Agregar
+            </v-btn>
+          </v-col>
+        </v-row>
+
+        <v-row align="center" justify="center">
+          <v-col cols="12" sm="15" md="8" v-if="scon">
+            <v-card-text class="elevation-12" id="card-in">
+              <v-form ref="form" lazy-validation v-model="valid">
+                <p>Por favor ingrese los datos del nuevo controlador:</p>
+                <v-text-field
+                  ref="nombres"
+                  label="Nombres"
+                  outlined
+                  rounded
+                  v-model="nombres"
+                  :rules="[() => !!nombres || 'Campo obligatorio']"
+                  type="text"
+                  color="primary"
+                >
+                </v-text-field>
+                <v-text-field
+                  ref="apellidos"
+                  label="Apellidos"
+                  outlined
+                  rounded
+                  v-model="apellidos"
+                  :rules="[rules.required]"
+                  type="text"
+                  color="primary"
+                >
+                </v-text-field>
+                <v-text-field
+                  ref="cedula"
+                  label="Cédula"
+                  outlined
+                  rounded
+                  v-model="cedula"
+                  :rules="[rules.required, rules.counter]"
+                  counter
+                  maxlength="10"
+                  color="primary"
+                >
+                </v-text-field>
+
+                <v-text-field
+                  v-model="fechaNacimiento"
+                  label="Fecha de Nacimiento"
+                  outlined
+                  rounded
+                  type="date"
+                ></v-text-field>
+                <v-text-field
+                  ref="telefono"
+                  label="Teléfono"
+                  outlined
+                  rounded
+                  v-model="telefono"
+                  :rules="[rules.required, rules.counter]"
+                  counter
+                  maxlength="10"
+                  color="primary"
+                >
+                </v-text-field>
+                <v-select
+                  :items="generos"
+                  label="Género"
+                  outlined
+                  rounded
+                  v-model="genero"
+                  :rules="[() => !!genero || 'Campo obligatorio']"
+                ></v-select>
+                <v-text-field
+                  ref="correo"
+                  label="Correo electrónico"
+                  outlined
+                  rounded
+                  v-model="correo"
+                  type="email"
+                  :rules="[rules.required, rules.email]"
+                  color="primary"
+                >
+                </v-text-field>
+              </v-form>
+            </v-card-text>
+
+            <v-btn
+              id="btn-ingreso"
+              color="secondary"
+              :disabled="!valid"
+              @click="enviarCon"
             >
               Agregar
             </v-btn>
@@ -232,20 +306,6 @@
                               :rules="[() => !!genero || 'Campo obligatorio']"
                             ></v-select>
                           </v-col>
-                          <!-- <v-col cols="12" sm="6" md="6">
-                            <v-text-field
-                              v-model="semestre"
-                              label="Semestre"
-                              type="number"
-                            ></v-text-field>
-                          </v-col>
-                          <v-col cols="12" sm="6" md="6">
-                            <v-select
-                              v-model="carrera"
-                              label="Carrera"
-                             
-                            ></v-select>
-                          </v-col> -->
                         </v-row>
                       </v-container>
                     </v-card-text>
@@ -286,6 +346,19 @@
             <template v-slot:no-data>
               <v-btn color="primary"> No hay registros </v-btn>
             </template>
+            <template v-slot:[`item.esControlador`]="{ item }">
+              <p style="margin-top: 5px" v-if="!item.esControlador">
+                <v-chip class="ma-2" color="green" outlined>
+                 Administrador
+                </v-chip>
+              </p>
+              <p style="margin-top: 5px" v-else>
+                <v-chip class="ma-2" color="orange" outlined>
+                  Controlador
+                </v-chip>
+              </p>
+            </template>
+
           </v-data-table>
         </v-flex>
       </v-layout>
@@ -302,7 +375,8 @@ export default {
     return {
       valid: true,
       facul: "",
-
+      sadmin: false,
+      scon: false,
       rules: {
         required: (value) => !!value || "Campo Requerido.",
         counter: (value) => value.length == 10 || "Se requiere 10 dígitos",
@@ -314,8 +388,7 @@ export default {
       },
 
       generos: ["Masculino", "Femenino"],
-      listaFacultades: [],
-      listaCarreras: [],
+
       cedula: "",
       nombres: "",
       apellidos: "",
@@ -323,13 +396,11 @@ export default {
       correo: "",
       usuario: "",
       telefono: "",
-      semestre: 0,
-      carrera: "",
+
       genero: "",
+      esControlado1: true,
+      esControlado: false,
 
-      esControlador: false,
-
-      prueba: [],
       dialog: false,
       dialogDelete: false,
       // id: "",
@@ -367,14 +438,18 @@ export default {
           text: "Teléfono",
           value: "telefono",
         },
-        {
-          text: "Carrera",
-          value: "carrera",
-        },
 
         {
           text: "Usuario",
           value: "usuario",
+        },
+        {
+          text: "Rol",
+          value: "esControlador",
+        },
+        {
+          text: "Identificador",
+          value: "identificadorAdmin",
         },
       ],
       search: "",
@@ -393,9 +468,8 @@ export default {
     };
   },
   mounted() {
-    this.obtenerListaEst();
-    this.obtenerFac();
-    this.sesion();
+    this.obtenerListaAdmin();
+    // this.obtenerFac();
   },
   computed: {
     formTitle() {
@@ -483,43 +557,10 @@ export default {
     //     console.log(err);
     //   }
     // },
-    async sesion() {
-      try {
-      } catch (error) {
-        if (err.response.status == 403) {
-          this.$cookies.remove("ROLE_ADMIN");
-          this.$notifier.showMessage({
-            content: `Su sesión ha expirado`,
-            color: "error",
-          });
-          this.$router.push("/login");
-        }
-      }
-    },
-    async obtenerFac() {
-      this.listaFacultades.slice();
-      try {
-        const res = await axios.get("api/facultad", {
-          headers: {
-            authorization: "SGVUCE " + this.$cookies.get("ROLE_ADMIN"),
-          },
-        });
-        console.log(res);
 
-        const lis = res.data;
-
-        lis.forEach((facu) => {
-          this.listaFacultades.push(`${facu.nombre}`);
-        });
-        this.prueba = res.data;
-      } catch (err) {
-        console.log(err);
-      }
-    },
-
-    async obtenerListaEst() {
+    async obtenerListaAdmin() {
       try {
-        const res = await axios.get("api/estudiante", {
+        const res = await axios.get("api/administrador", {
           headers: {
             authorization: "SGVUCE " + this.$cookies.get("ROLE_ADMIN"),
           },
@@ -528,16 +569,22 @@ export default {
         this.desserts = res.data;
       } catch (err) {
         console.log(err);
-         if (err.response.status == 403) {
-         
+        // this.$cookies.set('ROLE_ADMIN', respuesta.data.token_actualizado);
+
+        // this.$router.push("/login");
+        if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
           this.$notifier.showMessage({
-            content: `No hay estudiantes registrados`,
+            content: `Su sesión ha expirado`,
             color: "error",
           });
-          
+          this.$router.push("/login");
         }
+
       }
     },
+
+  
 
     llenarTabla() {
       this.desserts.push({
@@ -546,12 +593,11 @@ export default {
         cedula: this.cedula,
         correo: this.correo,
         fechaNacimiento: this.fechaNacimiento,
-        carrera: this.carrera,
-        usuario: this.usuario,
+
         telefono: this.telefono,
         genero: this.genero,
       });
-      this.obtenerListaEst();
+      this.obtenerListaAdmin();
     },
 
     async enviar() {
@@ -561,8 +607,6 @@ export default {
         !this.fechaNacimiento ||
         !this.cedula ||
         !this.correo ||
-        !this.carrera ||
-        !this.semestre ||
         !this.telefono ||
         !this.genero
       ) {
@@ -573,7 +617,7 @@ export default {
       } else {
         try {
           const res = await this.$axios.post(
-            "api/estudiante",
+            "api/administrador/crearAdmin",
             {
               nombres: this.nombres,
               apellidos: this.apellidos,
@@ -582,10 +626,74 @@ export default {
               correo: this.correo,
               telefono: this.telefono,
               genero: this.genero,
-              semestre: this.semestre,
-              carrera: this.carrera,
 
-              esControlador: this.esControlador,
+              esControlador: this.esControlado,
+            },
+            {
+              headers: {
+                authorization: "SGVUCE " + this.$cookies.get("ROLE_ADMIN"),
+              },
+            },
+            this.correo.trim(),
+            (this.nombres = " "),
+            (this.apellidos = " "),
+         
+            (this.cedula = " "),
+            (this.correo = " "),
+            (this.telefono = " "),
+            (this.genero = " ")
+          
+          );
+          this.llenarTabla(),
+            this.$notifier.showMessage({
+              content: "Administrador añadido con éxito",
+              color: "success",
+            });
+          console.log(res);
+        } catch (err) {
+          console.log(err);
+          if (err.response.status == 403) {
+            this.$notifier.showMessage({
+              content: "Debe ingresar dos apellidos",
+              color: "warning",
+            });
+          }else if(err.response.status == 500) {
+            this.$notifier.showMessage({
+              content: "Cédula o Correo Duplicados",
+              color: "warning",
+            });
+          }
+        }
+      }
+    },
+    async enviarCon() {
+      if (
+        !this.nombres ||
+        !this.apellidos ||
+        !this.fechaNacimiento ||
+        !this.cedula ||
+        !this.correo ||
+        !this.telefono ||
+        !this.genero
+      ) {
+        this.$notifier.showMessage({
+          content: "Rellene todos los datos",
+          color: "error",
+        });
+      } else {
+        try {
+          const res = await this.$axios.post(
+            "api/administrador/crearControlador",
+            {
+              nombres: this.nombres,
+              apellidos: this.apellidos,
+              fechaNacimiento: this.fechaNacimiento,
+              cedula: this.cedula,
+              correo: this.correo,
+              telefono: this.telefono,
+              genero: this.genero,
+
+              esControlador: this.esControlado1,
             },
             {
               headers: {
@@ -598,14 +706,11 @@ export default {
             (this.cedula = " "),
             (this.correo = " "),
             (this.telefono = " "),
-            (this.genero = " "),
-            (this.semestre = " "),
-            (this.carrera = " "),
-            (this.esControlador = false)
+            (this.genero = " ")
           );
           this.llenarTabla(),
             this.$notifier.showMessage({
-              content: "Estudiante añadido con éxito",
+              content: "Controlador añadido con éxito",
               color: "success",
             });
           console.log(res);
@@ -614,11 +719,6 @@ export default {
           if (err.response.status == 403) {
             this.$notifier.showMessage({
               content: "Debe ingresar dos apellidos",
-              color: "warning",
-            });
-          } else if (err.response.status == 500) {
-            this.$notifier.showMessage({
-              content: "Cédula o Correo Duplicados",
               color: "warning",
             });
           }

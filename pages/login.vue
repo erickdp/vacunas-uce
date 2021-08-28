@@ -78,18 +78,16 @@
   </v-app>
 </template>
 <script>
+import axios from "axios";
 export default {
-  components: {},
+ 
   layout: "login",
   data() {
     return {
-      alert: false,
+    
       username: "",
       password: "",
-      roles: "",
-      mensaje: "Usuario incorrecto",
-      tipoAlert: "error",
-      value: true,
+     
     };
   },
   methods: {
@@ -100,30 +98,27 @@ export default {
           password: this.password,
         });
         console.log(respuesta);
-        this.$cookies.set("datos", respuesta);
-     
-          // this.$store.commit("session/logIn", respuesta.data);
-        //   this.alert = false;
-          let type = respuesta.data.maximo_role;
 
-          if (type === "ROLE_ADMIN") {
-            this.$router.push("/creacionEstudiante");
-           }
-           else if ((type = "ROLE_HC")) {
-            this.$router.push("/registrarDosis");
-          
-          }  else {
-            this.$router.push("/principalEst");;
-          }
-        // }
+        let type = respuesta.data.maximo_role;
+
+        if (type === "ROLE_ADMIN") {
+          this.$router.push("/inicioAdmin");
+          this.$cookies.set(type, respuesta.data.token_acceso);
+        } else if (type === "ROLE_USER") {
+          this.$router.push("/principalEst");
+          this.$cookies.set(type, respuesta.data);
+        } else {
+          this.$router.push("/inicioCont");
+          this.$cookies.set(type, respuesta.data.token_acceso);
+        }
       } catch (err) {
         console.log(err);
-        this.username = "";
-        this.password = "";
-        this.$notifier.showMessage({
-          content: "Corrija los campos del formulario para continuar",
-          color: "success",
-        });
+        if (err.response.status == 401) {
+          this.$notifier.showMessage({
+            content: "Datos incorrectos",
+            color: "error",
+          });
+        }
       }
     },
   },
