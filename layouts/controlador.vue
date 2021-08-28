@@ -2,7 +2,7 @@
  <v-responsive >
   <v-app>
     <div>
-      <v-app-bar flat app color="primary">
+      <v-app-bar flat app color="#CCD5E2">
         <v-app-bar-nav-icon
           dark
           v-if="!$vuetify.breakpoint.xs"
@@ -13,7 +13,7 @@
           <img
             class="mt-2"
              src="/vacuna-logo.png"
-            width="90" style="margin-left:-15px"
+            width="60" style="margin-left:-15px"
           />
         </v-toolbar-title>
 
@@ -21,7 +21,7 @@
         <v-text-field
           v-if="!$vuetify.breakpoint.xs"
           dense
-          label="Busqueda de modulos"
+          label="Búsqueda de modulos"
           :messages="false"
           append-icon="mdi-magnify"
           solo
@@ -35,11 +35,11 @@
           <v-menu offset-y>
             <template v-slot:activator="{ on, attrs }">
               <v-btn dark icon v-bind="attrs" v-on="on">
-                <v-icon> mdi-account </v-icon>
+                <v-icon style="color: #036eb4"> mdi-account </v-icon>
               </v-btn>
             </template>
             <v-list>
-              <v-list-item nuxt to="/account">
+              <v-list-item>
                 <v-list-item-avatar>
                   <img
                     src="https://www.labicok.com/wp-content/uploads/2020/06/default-user-image.png"
@@ -65,7 +65,7 @@
         v-if="!$vuetify.breakpoint.xs"
         v-model="drawer"
         :mini-variant.sync="mini"
-        color="secondary"
+        color="#CCD5E2"
         permanent
         dark
         app
@@ -74,25 +74,26 @@
         <v-list>
           <v-list-item
             v-for="item in items"
+             style="color: #036eb4"
             :key="item.key"
             :to="item.route"
             nuxt
             exact
           >
             <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
+              <v-icon  style="color: #036eb4">{{ item.icon }}</v-icon>
             </v-list-item-icon>
 
             <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
+              <v-list-item-title  style="color: #036eb4">{{ item.title }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item @click="logout">
             <v-list-item-icon>
-              <v-icon>mdi-logout</v-icon>
+              <v-icon  style="color: #036eb4">mdi-logout</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>Salir</v-list-item-title>
+              <v-list-item-title  style="color: #036eb4">Salir</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -105,7 +106,7 @@
             />
           </v-list-item-avatar>
 
-          <v-list-item-title>Administrador</v-list-item-title>
+         
         </v-list-item>
         <v-divider />
         <v-list>
@@ -135,7 +136,7 @@
       </v-navigation-drawer>
     </div>
     <v-main>
-      <!-- <Snackbar /> -->
+      <Snackbar />
       <v-container>
         <nuxt />
       </v-container>
@@ -145,18 +146,18 @@
 </template>
 
 <script>
-// import Snackbar from "~/components/layouts/Snackbar";
+import Snackbar from "~/components/layouts/Snackbar";
 export default {
   components: {
-    // Snackbar,
+    Snackbar,
   },
   data() {
     return {
       mini: false,
       drawer: false,
       items: [
-        { title: 'Inicio', icon: 'mdi-home-export-outline', route: '/userUniversidad/', key: 1 },
-        { title: 'Registrar', icon: 'mdi-account-group-outline', route: '/creacionEstudiante', key: 2 },
+        { title: 'Inicio', icon: 'mdi-home-export-outline', route: '/inicioCont/', key: 1 },
+        { title: 'Registrar', icon: 'mdi-account-group-outline', route: '/registrarDosis', key: 2 },
         // { title: 'Facultades', icon: 'mdi-home-edit', route: '/userUniversidad/pasoUno', key: 3 },
 
         // { title: 'Alcance', icon: 'mdi-account', route: '/userUniversidad/alcance', key: 3 },
@@ -170,7 +171,7 @@ export default {
   },
   methods: {
     async logout () {
-      //this.$cookies.remove('dataClient')
+      this.$cookies.remove('ROLE_HC')
       this.$router.push('/login')
     }
   }
@@ -179,5 +180,9 @@ export default {
 <style scoped>
 .nuxt-link-active {
   
+}
+.v-btn--icon.v-size--default .v-icon,
+.v-btn--fab.v-size--default .v-icon {
+  color: #036eb4;
 }
 </style>

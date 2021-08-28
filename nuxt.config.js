@@ -22,10 +22,14 @@ export default {
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
   ],
-
+  router:{
+  
+    middleware:['auth'],
+  },
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-
+    '~/plugins/axios.js',
+    '~/plugins/notifier.js',
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -48,7 +52,7 @@ export default {
   proxy: {
     '/api/': {
       target: 'https://sgvacunas.herokuapp.com/',
-      pathRewrite: {'^/api/': ''},
+      pathRewrite: { '^/api/': '' },
       changeOrigin: true
     }
   },
@@ -58,14 +62,14 @@ export default {
     customVariables: ['~/assets/variables.scss'],
     theme: {
       themes: {
-      light: {
-      primary: '#036eb4',
-      secondary: '#2A5EB2',
+        light: {
+          primary: '#036eb4',
+          secondary: '#2A5EB2',
+        }
       }
-      }
-      }
+    }
   },
-  server:{
+  server: {
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

@@ -1,15 +1,16 @@
 <template>
   <div>
     <nuxt />
-    <!-- <Snackbar /> -->
+    <Snackbar />
   </div>
 </template>
 
 <script>
-
-
+import Snackbar from "~/components/layouts/Snackbar";
 export default {
- 
+  components: {
+    Snackbar,
+  },
 };
 </script>
 
