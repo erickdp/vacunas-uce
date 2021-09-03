@@ -64,19 +64,22 @@
                   outlined
                   rounded
                   v-model="cedula"
-                  :rules="[rules.required, rules.counter]"
+                  :rules="[rules.ced, rules.counter, rules.required]"
                   counter
                   maxlength="10"
                   color="primary"
                 >
                 </v-text-field>
 
-                <v-text-field
+               <v-text-field
                   v-model="fechaNacimiento"
                   label="Fecha de Nacimiento"
                   outlined
                   rounded
                   type="date"
+                  name="user_date"
+                  id="user_date"
+                
                 ></v-text-field>
                 <v-text-field
                   ref="telefono"
@@ -84,7 +87,7 @@
                   outlined
                   rounded
                   v-model="telefono"
-                  :rules="[rules.required, rules.counter]"
+                  :rules="[rules.tel, rules.counter, rules.required]"
                   counter
                   maxlength="10"
                   color="primary"
@@ -105,7 +108,7 @@
                   rounded
                   v-model="correo"
                   type="email"
-                  :rules="[rules.required, rules.email]"
+                  :rules="[rules.email, rules.required]"
                   color="primary"
                 >
                 </v-text-field>
@@ -116,7 +119,7 @@
               id="btn-ingreso"
               color="secondary"
               :disabled="!valid"
-              @click="enviar"
+             @click="calculateAge"
             >
               Agregar
             </v-btn>
@@ -156,7 +159,7 @@
                   outlined
                   rounded
                   v-model="cedula"
-                  :rules="[rules.required, rules.counter]"
+                  :rules="[rules.ced, rules.counter, rules.required]"
                   counter
                   maxlength="10"
                   color="primary"
@@ -176,7 +179,7 @@
                   outlined
                   rounded
                   v-model="telefono"
-                  :rules="[rules.required, rules.counter]"
+                  :rules="[rules.tel, rules.counter, rules.required]"
                   counter
                   maxlength="10"
                   color="primary"
@@ -197,7 +200,7 @@
                   rounded
                   v-model="correo"
                   type="email"
-                  :rules="[rules.required, rules.email]"
+                  :rules="[rules.email, rules.required]"
                   color="primary"
                 >
                 </v-text-field>
@@ -265,7 +268,7 @@
                           <v-col cols="12" sm="6" md="6">
                             <v-text-field
                               v-model="cedula"
-                              :rules="[rules.required, rules.counter]"
+                              :rules="[rules.required, rules.counter, rules.ced]"
                               counter
                               maxlength="10"
                               color="primary"
@@ -293,7 +296,7 @@
                             <v-text-field
                               v-model="telefono"
                               label="Teléfono"
-                              :rules="[rules.required, rules.counter]"
+                              :rules="[rules.required, rules.counter, rules.tel]"
                               counter
                               maxlength="10"
                             ></v-text-field>
@@ -379,7 +382,16 @@ export default {
       scon: false,
       rules: {
         required: (value) => !!value || "Campo Requerido.",
+
         counter: (value) => value.length == 10 || "Se requiere 10 dígitos",
+        ced: (value) => {
+          const pattern = /^[0-9]*$/;
+          return pattern.test(value) || "Solo números";
+        },
+        tel: (value) => {
+          const pattern = /^([0])+(9)+([0-9])*$/;
+          return pattern.test(value) || "No es un número telefónico válido";
+        },
         email: (value) => {
           const pattern =
             /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -469,6 +481,7 @@ export default {
   },
   mounted() {
     this.obtenerListaAdmin();
+    // this.sesion();
     // this.obtenerFac();
   },
   computed: {
@@ -494,6 +507,24 @@ export default {
   },
 
   methods: {
+    
+     async calculateAge() {
+      var d = document.getElementById("user_date").value;
+      var inDate = new Date(d);
+      var anio = inDate.getFullYear();
+      var fec_actual = new Date();
+      var fec_anio = fec_actual.getFullYear();
+      var edad = fec_anio - anio;
+      if (edad >= 16) {
+       this.enviar();
+
+      } else {
+        this.$notifier.showMessage({
+            content: `Ingrese una edad válida`,
+            color: "warning",
+          });
+      }
+    },
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -567,11 +598,9 @@ export default {
         });
 
         this.desserts = res.data;
+       
       } catch (err) {
         console.log(err);
-        // this.$cookies.set('ROLE_ADMIN', respuesta.data.token_actualizado);
-
-        // this.$router.push("/login");
         if (err.response.status == 403) {
           this.$cookies.remove("ROLE_ADMIN");
           this.$notifier.showMessage({
@@ -580,6 +609,10 @@ export default {
           });
           this.$router.push("/login");
         }
+        // this.$cookies.set('ROLE_ADMIN', respuesta.data.token_actualizado);
+
+        // this.$router.push("/login");
+   
 
       }
     },
@@ -619,12 +652,12 @@ export default {
           const res = await this.$axios.post(
             "api/administrador/crearAdmin",
             {
-              nombres: this.nombres,
-              apellidos: this.apellidos,
+              nombres: this.nombres.trim(),
+              apellidos: this.apellidos.trim(),
               fechaNacimiento: this.fechaNacimiento,
-              cedula: this.cedula,
-              correo: this.correo,
-              telefono: this.telefono,
+              cedula: this.cedula.trim(),
+              correo: this.correo.trim(),
+              telefono: this.telefono.trim(),
               genero: this.genero,
 
               esControlador: this.esControlado,
