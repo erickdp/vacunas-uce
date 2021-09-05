@@ -80,12 +80,13 @@
                   </v-row>
                   <v-row>
                     <v-col cols="12" sm="6" md="6">
-                      <v-text-field
+                      <v-autocomplete
                         v-if="editedItem.primeraDosis"
                         v-model="editedItem.nombreVacuna"
                         label="Vacuna"
+                        :items="opciones"
                         :disabled="editedItem.segundaDosis"
-                      ></v-text-field>
+                      ></v-autocomplete>
                     </v-col>
 
                     <v-col cols="12" sm="6" md="6">
@@ -173,7 +174,8 @@ import moment from "moment";
 
 export default {
   layout: "controlador",
-
+  
+  
   data() {
     return {
       dialog: false,
@@ -182,7 +184,7 @@ export default {
       segundaDosis: true,
       vacunadorPrimeraDosis: "",
       loteDosisUno: "",
-      fechaSegundaDosis: "",
+      fechaSegundasDosis: "",
       fechaPrimeraDosis: "",
       usuario: "",
       vacunadorSegundaDosis: "",
@@ -194,6 +196,7 @@ export default {
       fechaNacimiento: "",
       search: "",
       selected: [],
+      opciones:["Pfizer", "Astrazeneca", "Sinovac"],
       dias: "",
       sfacultad: false,
       scarrera: false,
@@ -203,13 +206,15 @@ export default {
       carrera: "",
       prueba: [],
       centroVacunacion: "",
-      fase: "",
+      // fase: "",
       fase1: "",
       nombre: "",
-
+     
       personasVacunadas: "",
       idPlan: "",
-      editedItem: {},
+      editedItem: {
+       
+      },
 
       defaultItem: {},
       headers: [
@@ -235,18 +240,18 @@ export default {
       desserts: [],
       listaFacultades: [],
       facultadSeleccionada: "",
-
+fecha1:"",
       prueba: [],
       listaFases: [],
       search: "",
-      listaId: [],
+   
+   
     };
   },
   mounted() {
     this.obtenerPlanes();
     this.obtenerFac();
-   
-   
+    this.obtenerFecha();
   },
   watch: {
     dialog(val) {
@@ -255,10 +260,19 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete();
     },
-    nombre: function () {
+    fase1: function () {
       this.prueba.forEach((elementos) => {
         if (elementos.facultad === this.nombre) {
-          this.idPlan = elementos._id;
+          console.log(elementos);
+          if (this.fase1 === "PRIMERA") {
+            if (elementos.fase == "PRIMERA") {
+              this.idPlan = elementos._id;
+            }
+          } else if (this.fase1 === "SEGUNDA") {
+            if (elementos.fase == "SEGUNDA") {
+              this.idPlan = elementos._id;
+            }
+          }
         }
       });
     },
@@ -268,7 +282,7 @@ export default {
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
- 
+
       this.dialog = true;
     },
     close() {
@@ -293,9 +307,30 @@ export default {
           this.listaFases.push(`${fas.fase}`);
         });
         // console.log(fa)
-      } catch (err) {}
+      } catch (err) {
+           if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
+        }
+      }
+    },
+    async obtenerFecha(){
+        const fecha=new Date();
+      // const ano=fecha.getFullYear();
+      // const dia=fecha.getDate();
+      // const mes=fecha.getMonth();
+      this.fecha1=fecha.toLocaleDateString()
+      console.log(this.fecha1)
+  
+
+     
     },
     async obtenerFac() {
+     
       try {
         const resp = await axios.get("api/plan/planesDiarios/", {
           headers: {
@@ -310,7 +345,16 @@ export default {
         });
         this.prueba = resp.data.planes_actuales;
         // console.log("hola" + prueba);
-      } catch (err) {}
+      } catch (err) {
+           if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
+        }
+      }
     },
 
     // async obtenerIdPlanes() {
@@ -345,7 +389,17 @@ export default {
           });
 
           this.desserts = res.data.data;
-        } catch (error) {}
+          console.log(res)
+        } catch (error) {
+             if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
+        }
+        }
       }
     },
     async obtenerC() {
@@ -358,10 +412,23 @@ export default {
 
         const id = res.data._id;
         this.$cookies.set("id", id);
-      } catch (error) {}
+        
+        
+
+      } catch (error) {
+           if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
+        }
+      }
     },
 
     async editarCarnet() {
+     
       if (
         !this.editedItem.primeraDosis ||
         !this.editedItem.nombreVacuna ||
@@ -374,11 +441,12 @@ export default {
         });
       } else {
         try {
-         
           const res = await this.$axios.put(
             `api/carnet/${this.idPlan}`,
             {
-              vacunadorSegundaDosis: this.editedItem.segundaDosis,
+              vacunadorSegundaDosis: this.editedItem.vacunadorSegundaDosis,
+              fechaSegundasDosis:new Date(),
+              fechaPrimeraDosis:new Date(),
               estudiante: this.editedItem.usuario,
               nombreVacuna: this.editedItem.nombreVacuna,
               inoculacionVoluntaria: this.editedItem.inoculacionVoluntaria,
@@ -388,7 +456,7 @@ export default {
               vacunadorPrimeraDosis: this.editedItem.vacunadorPrimeraDosis,
               loteDosisDos: this.editedItem.loteDosisDos,
               _id: this.$cookies.get("id"),
-              fechaNacimiento: this.editedItem.fechaNacimiento,
+         
               primeraDosis: this.editedItem.primeraDosis,
             },
             {

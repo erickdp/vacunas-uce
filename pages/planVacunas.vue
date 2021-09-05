@@ -46,7 +46,7 @@
                 </v-row>
                 <v-row>
                   <v-col cols="5">
-                    <v-select
+                    <v-autocomplete
                       ref="facultad"
                       label="Facultad"
                       outlined
@@ -57,7 +57,7 @@
                       type="text"
                       color="primary"
                     >
-                    </v-select>
+                    </v-autocomplete>
                   </v-col>
 
                   <v-col cols="5">
@@ -76,7 +76,7 @@
               </v-form>
               <p>
                 <strong>Nota:</strong> El plan por facultad tiene una duración
-                máxima de 5 días
+                máxima de 2 días
               </p>
             </v-card-text>
 
@@ -238,7 +238,6 @@ export default {
   mounted() {
     this.obtenerPlanes();
     this.obtenerFac();
-  
   },
   watch: {
     dialog(val) {
@@ -266,20 +265,6 @@ export default {
     },
   },
   methods: {
-  
-    editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
-    close() {
-      this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
     async fecha() {
       var fecha = new Date();
       var anio = fecha.getFullYear();
@@ -298,7 +283,7 @@ export default {
         anio + "-" + mes + "-" + dia;
     },
 
-    async fechaEdit() {
+      async fechaEdit() {
       var fecha = new Date();
       var anio = fecha.getFullYear();
       var dia = fecha.getDate();
@@ -315,6 +300,21 @@ export default {
       document.getElementById("fechaReserva3").min =
         anio + "-" + mes + "-" + dia;
     },
+    
+    editItem(item) {
+      this.editedIndex = this.desserts.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialog = true;
+    },
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+  
 
     async obtenerFac() {
       this.listaFacultades.slice();
@@ -332,7 +332,6 @@ export default {
         });
 
         this.prueba = res.data;
-       
       } catch (err) {
         console.log(err);
         if (err.response.status == 403) {
@@ -354,9 +353,8 @@ export default {
           },
         });
 
-        this.desserts=res.data
+        this.desserts = res.data;
         console.log(res);
-       
       } catch (err) {
         if (err.response.status == 404) {
           this.$notifier.showMessage({
@@ -392,14 +390,14 @@ export default {
             {
               notificados: this.notificados,
               // nuevoplan: {
-                fechaInicio: this.fechaInicio,
-                fechaFin: this.fechaFin,
-                facultad: this.facultad,
+              fechaInicio: this.fechaInicio,
+              fechaFin: this.fechaFin,
+              facultad: this.facultad,
 
-                personasVacunadas: this.personasVacunadas,
-                centroVacunacion: this.centroVacunacion,
-                fase: "PRIMERA",
-              },
+              personasVacunadas: this.personasVacunadas,
+              centroVacunacion: this.centroVacunacion,
+              fase: "PRIMERA",
+            },
             // },
             {
               headers: {
@@ -417,27 +415,42 @@ export default {
               content: `El plan se ha registrado con éxito, se ha enviado un mensaje con la información al correo de los estudiantes`,
             });
           this._id = res.data._id;
-          // console.log(res)
         } catch (err) {
-          console.log(err);
           if (err.response.status == 404) {
             this.$notifier.showMessage({
               content: `No hay estudiantes registrados en la facultad ${this.facultad}`,
               color: "warning",
             });
-          } else if (err.response.status == 403) {
+          } else if (
+            err.response.data.mensaje ==
+            "La fecha inicial no puede ser inferior a la fecha final"
+          ) {
             this.$notifier.showMessage({
-              content: `Verifique que la fecha sea correcta`,
               color: "warning",
+              content: `La fecha inicial no puede ser inferior a la fecha de finalización`,
             });
-          } else if (err.response.status == 400) {
+          } else if (
+            err.response.data.mensaje ==
+            `Ya existe un plan de vacunacion para: ${this.facultad}`
+          ) {
             this.$notifier.showMessage({
               content: `La facultad ${this.facultad} ya tiene un plan registrado`,
               color: "warning",
             });
-          } else if (err.response.status == 500) {
+          } else if (
+            err.response.data.mensaje ==
+            "La distancia entre fechas no debe ser mayor a 2"
+          ) {
             this.$notifier.showMessage({
-              content: `La fecha seleccionada no está disponible`,
+              content: `El plan tiene una duración máxima de 2 días`,
+              color: "warning",
+            });
+          } else if (
+            err.response.data.mensaje ==
+            "No puede existir más de 2 Facultades dentro de la misma fecha"
+          ) {
+            this.$notifier.showMessage({
+              content: `Solo se permite ingresar dos planes para una misma fecha`,
               color: "warning",
             });
           }
@@ -472,7 +485,18 @@ export default {
             content: `El plan se ha editado con éxito`,
             color: "success",
           });
-      } catch (err) {}
+      } catch (err) {
+        if (
+          err.response.data.mensaje ==
+          "El plan de la segunda dosis no puede ser anterior al de la primera"
+        ) {
+          this.$notifier.showMessage({
+            content:
+              "La fecha no debe ser menor a la asignada en la primer fase",
+            color: "warning",
+          });
+        }
+      }
     },
   },
 };

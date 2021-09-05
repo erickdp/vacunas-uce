@@ -685,12 +685,12 @@ export default {
           console.log(res);
         } catch (err) {
           console.log(err);
-          if (err.response.status == 403) {
+             if (err.response.data.mensaje == "Request processing failed; nested exception is java.lang.ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 1") {
             this.$notifier.showMessage({
               content: "Debe ingresar dos apellidos",
               color: "warning",
             });
-          }else if(err.response.status == 500) {
+          } else if (err.response.status == 500) {
             this.$notifier.showMessage({
               content: "Cédula o Correo Duplicados",
               color: "warning",
@@ -749,9 +749,14 @@ export default {
           console.log(res);
         } catch (err) {
           console.log(err);
-          if (err.response.status == 403) {
+             if (err.response.data.mensaje == "Request processing failed; nested exception is java.lang.ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 1") {
             this.$notifier.showMessage({
               content: "Debe ingresar dos apellidos",
+              color: "warning",
+            });
+          } else if (err.response.status == 500) {
+            this.$notifier.showMessage({
+              content: "Cédula o Correo Duplicados",
               color: "warning",
             });
           }

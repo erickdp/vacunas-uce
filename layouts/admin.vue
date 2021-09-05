@@ -192,8 +192,8 @@ export default {
           key: 5,
         }, {
           title: "Estadísticas",
-          icon: "mdi-clipboard-check-multiple-outline",
-          route: "/grafica",
+          icon: "mdi-chart-bar",
+          route: "/App",
           key: 6,
         },
         // { title: 'Liderazgo', icon: 'mdi-pen', route: '/userUniversidad/liderazgo', key: 4 },

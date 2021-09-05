@@ -171,7 +171,7 @@ export default {
           value: "nombre",
         },
         {
-          text: "Carrera",
+          text: "Carreras",
           value: "carreras",
         },
 
@@ -270,9 +270,10 @@ export default {
       this.desserts.push({
         nombre: this.nombre,
         carreras: this.carreras,
-        // carreras: this.carreras,
+       
       });
     },
+   
     async agregarFac() {
       if (!this.nombref) {
         this.$notifier.showMessage({
@@ -306,6 +307,7 @@ export default {
             content: "Facultad añadida",
             color: "success",
           });
+        
         } catch (err) {
           console.log(err);
           if (err.response.status == 500) {

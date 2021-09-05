@@ -11,13 +11,13 @@
         </p>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="15" md="8">
-            <v-select
+            <v-autocomplete
               :items="listaFacultades"
               label="Facultad"
               outlined
               v-model="facul"
               rounded
-            ></v-select>
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row align="center" justify="center">
@@ -92,13 +92,13 @@
                 
                 ></v-select>
 
-                <v-select
+                <v-autocomplete
                   :items="listaCarreras"
                   label="Carrera"
                   v-model="carrera"
                   outlined
                   rounded
-                ></v-select>
+                ></v-autocomplete>
                 <v-text-field
                   ref="semestre"
                   label="Semestre"
@@ -337,6 +337,7 @@ export default {
             /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
           return pattern.test(value) || "No es un correo válido.";
         },
+        
       
       },
 
@@ -642,7 +643,7 @@ export default {
                 authorization: "SGVUCE " + this.$cookies.get("ROLE_ADMIN"),
               },
             },
-            // this.correo.trim(),
+           
            
             (this.nombres = ""),
             (this.apellidos = ""),
@@ -664,7 +665,7 @@ export default {
           console.log(res);
         } catch (err) {
           console.log(err);
-          if (err.response.status == 403) {
+          if (err.response.data.mensaje == "Request processing failed; nested exception is java.lang.ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 1") {
             this.$notifier.showMessage({
               content: "Debe ingresar dos apellidos",
               color: "warning",

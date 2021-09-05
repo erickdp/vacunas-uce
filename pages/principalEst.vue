@@ -260,7 +260,7 @@
                           "
                         >
                           RECUERDA EL HORARIO DE ATENCIÓN EN EL CENTRO DE
-                          VACUNACIÓN ES DE 8:00am A 17:00pm
+                          VACUNACIÓN ES DE 8:00am A 16:00pm
                         </p>
                       </v-col>
                     </v-row>
@@ -294,8 +294,11 @@
               <v-radio-group column>
                 <v-row>
                   <v-icon>mdi-file-pdf</v-icon>
-                  <v-radio label="PDF" value="pdf" @click="carnetPDF"></v-radio
-                ></v-row>
+
+                  <v-radio label="PDF" value="pdf" @click="carnetPDF"
+                    >hola</v-radio
+                  ></v-row
+                >
                 <v-row></v-row>
                 <v-row>
                   <v-icon>mdi-email</v-icon>
@@ -321,8 +324,15 @@
     </v-container>
   </v-app>
 </template>
+<script>
+var f = new Date();
+document.write(f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear());
+</script>
 
 <script>
+
+
+  
 import axios from "axios";
 export default {
   layout: "estudiante",
@@ -348,6 +358,7 @@ export default {
       inoculacionVoluntaria1: false,
       dialog: false,
       editedIndex: -1,
+      
       opciones: [
         { icon: "mdi-pancil", text: "PDF" },
         { text: "correo electrónico", icon: "mdi-email" },
@@ -356,14 +367,17 @@ export default {
         formTitle() {
           return "Certificado";
         },
+        
       },
       watch: {
         dialog(val) {
           val || this.close();
         },
+        
       },
       editedItem: {},
     };
+
   },
 
   mounted() {
@@ -372,6 +386,7 @@ export default {
   },
 
   methods: {
+   
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -391,7 +406,7 @@ export default {
         (this.nombres = resp.data.nombres),
           (this.apellidos = resp.data.apellidos);
       } catch (err) {
-         if (err.response.status == 403) {
+        if (err.response.status == 403) {
           this.$cookies.remove("ROLE_ADMIN");
           this.$notifier.showMessage({
             content: `Su sesión ha expirado`,
@@ -418,7 +433,6 @@ export default {
           (this.fechaSegundaDosis = resp.data.fechaSegundasDosis),
           (this.vacunadorPrimeraDosis = resp.data.vacunadorPrimeraDosis),
           (this.vacunadorSegundaDosis = resp.data.vacunadorSegundaDosis),
-         
           (this.loteDosisUno = resp.data.loteDosisUno),
           (this.loteDosisDos = resp.data.loteDosisDos),
           (this.cedula = resp.data.cedula),
@@ -428,16 +442,16 @@ export default {
           this.primeraDosis = "Vacunado";
         } else {
           this.primeraDosis = "Pendiente";
-        } 
-         if(resp.data.segundaDosis==true){
-this.segundaDosis="Vacunado"
-        }else{
-          this.segundaDosis="Pendiente"
         }
-        
+        if (resp.data.segundaDosis == true) {
+          this.segundaDosis = "Vacunado";
+        } else {
+          this.segundaDosis = "Pendiente";
+        }
+
         console.log(resp);
       } catch (err) {
-         if (err.response.status == 403) {
+        if (err.response.status == 403) {
           this.$cookies.remove("ROLE_ADMIN");
           this.$notifier.showMessage({
             content: `Su sesión ha expirado`,
@@ -446,6 +460,12 @@ this.segundaDosis="Vacunado"
           this.$router.push("/login");
         }
       }
+    },
+    async link(){
+      let user = this.$cookies.get("ROLE_USER").usuario;
+
+     
+      
     },
     async carnetPDF() {
       let user = this.$cookies.get("ROLE_USER").usuario;
@@ -456,8 +476,15 @@ this.segundaDosis="Vacunado"
               "SGVUCE " + this.$cookies.get("ROLE_USER").token_acceso,
           },
         });
+        window.location.href=`api/carnet/descargarCarnert/${user}`
+
+      
+
+        
         this.close();
-        console.log(resp);
+        
+        
+        
       } catch (err) {
         console.log("error" + err);
         if (err.response.status == 400) {
@@ -479,7 +506,10 @@ this.segundaDosis="Vacunado"
           },
         });
         this.close();
-        console.log(resp);
+         this.$notifier.showMessage({
+            content: "Se ha enviado el certificado a su correo electrónico",
+            color: "success",
+          });
       } catch (err) {
         console.log("error" + err);
         if (err.response.status == 400) {
