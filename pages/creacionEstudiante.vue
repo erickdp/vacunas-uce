@@ -11,13 +11,13 @@
         </p>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="15" md="8">
-            <v-select
+            <v-autocomplete
               :items="listaFacultades"
               label="Facultad"
               outlined
               v-model="facul"
               rounded
-            ></v-select>
+            ></v-autocomplete>
           </v-col>
         </v-row>
         <v-row align="center" justify="center">
@@ -31,7 +31,7 @@
                   outlined
                   rounded
                   v-model="nombres"
-                  :rules="[() => !!nombres || 'Campo obligatorio']"
+                  
                   type="text"
                   color="primary"
                 >
@@ -42,7 +42,7 @@
                   outlined
                   rounded
                   v-model="apellidos"
-                  :rules="[rules.required]"
+                  
                   type="text"
                   color="primary"
                 >
@@ -53,7 +53,7 @@
                   outlined
                   rounded
                   v-model="cedula"
-                  :rules="[rules.required, rules.counter]"
+                  :rules="[rules.ced, rules.counter]"
                   counter
                   maxlength="10"
                   color="primary"
@@ -66,14 +66,18 @@
                   outlined
                   rounded
                   type="date"
+                  name="user_date"
+                  id="user_date"
+                
                 ></v-text-field>
+                <!-- <input type="date" v-model="fechaNacimiento" @click="calculateAge" name="user_date" id="user_date"/> -->
                 <v-text-field
                   ref="telefono"
                   label="Teléfono"
                   outlined
                   rounded
                   v-model="telefono"
-                  :rules="[rules.required, rules.counter]"
+                  :rules="[rules.tel, rules.counter]"
                   counter
                   maxlength="10"
                   color="primary"
@@ -85,16 +89,16 @@
                   outlined
                   rounded
                   v-model="genero"
-                  :rules="[() => !!genero || 'Campo obligatorio']"
+                
                 ></v-select>
 
-                <v-select
+                <v-autocomplete
                   :items="listaCarreras"
                   label="Carrera"
                   v-model="carrera"
                   outlined
                   rounded
-                ></v-select>
+                ></v-autocomplete>
                 <v-text-field
                   ref="semestre"
                   label="Semestre"
@@ -102,7 +106,7 @@
                   rounded
                   v-model="semestre"
                   type="number"
-                  :rules="[() => !!semestre || 'Campo obligatorio']"
+                 
                   color="primary"
                 >
                 </v-text-field>
@@ -113,7 +117,7 @@
                   rounded
                   v-model="correo"
                   type="email"
-                  :rules="[rules.required, rules.email]"
+                  :rules="[rules.email]"
                   color="primary"
                 >
                 </v-text-field>
@@ -134,10 +138,13 @@
               id="btn-ingreso"
               color="secondary"
               :disabled="!valid"
-              @click="enviar"
+              type="button"
+              
+              @click="calculateAge"
             >
               Agregar
             </v-btn>
+           
           </v-col>
         </v-row>
       </div>
@@ -191,7 +198,11 @@
                           <v-col cols="12" sm="6" md="6">
                             <v-text-field
                               v-model="cedula"
-                              :rules="[rules.required, rules.counter]"
+                              :rules="[
+                                rules.ced,
+                                rules.counter,
+                                rules.required,
+                              ]"
                               counter
                               maxlength="10"
                               color="primary"
@@ -212,14 +223,18 @@
                             <v-text-field
                               v-model="correo"
                               label="Correo electrónico"
-                              :rules="[rules.required, rules.email]"
+                              :rules="[rules.email, rules.required]"
                             ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="6" md="6">
                             <v-text-field
                               v-model="telefono"
                               label="Teléfono"
-                              :rules="[rules.required, rules.counter]"
+                              :rules="[
+                                rules.tel,
+                                rules.counter,
+                                rules.required,
+                              ]"
                               counter
                               maxlength="10"
                             ></v-text-field>
@@ -284,7 +299,7 @@
               <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
             </template>
             <template v-slot:no-data>
-              <v-btn color="primary"> No hay registros </v-btn>
+              <v-btn color="primary" text> No hay registros </v-btn>
             </template>
           </v-data-table>
         </v-flex>
@@ -293,6 +308,8 @@
   </v-card>
 </template>
 
+  
+   
 <script>
 import axios from "axios";
 export default {
@@ -305,12 +322,23 @@ export default {
 
       rules: {
         required: (value) => !!value || "Campo Requerido.",
+
         counter: (value) => value.length == 10 || "Se requiere 10 dígitos",
+        ced: (value) => {
+          const pattern = /^[0-9]*$/;
+          return pattern.test(value) || "Solo números";
+        },
+        tel: (value) => {
+          const pattern = /^([0])+(9)+([0-9])*$/;
+          return pattern.test(value) || "No es un número telefónico válido";
+        },
         email: (value) => {
           const pattern =
             /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
           return pattern.test(value) || "No es un correo válido.";
         },
+        
+      
       },
 
       generos: ["Masculino", "Femenino"],
@@ -395,12 +423,14 @@ export default {
   mounted() {
     this.obtenerListaEst();
     this.obtenerFac();
-    this.sesion();
+    
+    
   },
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Registro" : "Editar Registro";
     },
+   
   },
 
   watch: {
@@ -420,6 +450,24 @@ export default {
   },
 
   methods: {
+   
+    async calculateAge() {
+      var d = document.getElementById("user_date").value;
+      var inDate = new Date(d);
+      var anio = inDate.getFullYear();
+      var fec_actual = new Date();
+      var fec_anio = fec_actual.getFullYear();
+      var edad = fec_anio - anio;
+      if (edad >= 16) {
+       this.enviar()
+
+      } else {
+        this.$notifier.showMessage({
+            content: `Ingrese una edad válida`,
+            color: "warning",
+          });
+      }
+    },
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -483,19 +531,7 @@ export default {
     //     console.log(err);
     //   }
     // },
-    async sesion() {
-      try {
-      } catch (error) {
-        if (err.response.status == 403) {
-          this.$cookies.remove("ROLE_ADMIN");
-          this.$notifier.showMessage({
-            content: `Su sesión ha expirado`,
-            color: "error",
-          });
-          this.$router.push("/login");
-        }
-      }
-    },
+   
     async obtenerFac() {
       this.listaFacultades.slice();
       try {
@@ -512,8 +548,17 @@ export default {
           this.listaFacultades.push(`${facu.nombre}`);
         });
         this.prueba = res.data;
+        
       } catch (err) {
         console.log(err);
+        if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
+        }
       }
     },
 
@@ -526,15 +571,21 @@ export default {
         });
 
         this.desserts = res.data;
+        
       } catch (err) {
         console.log(err);
-         if (err.response.status == 403) {
-         
+        if (err.response.status == 404) {
           this.$notifier.showMessage({
             content: `No hay estudiantes registrados`,
             color: "error",
           });
-          
+        } else if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
         }
       }
     },
@@ -568,19 +619,19 @@ export default {
       ) {
         this.$notifier.showMessage({
           content: "Rellene todos los datos",
-          color: "error",
+          color: "warning",
         });
       } else {
         try {
           const res = await this.$axios.post(
             "api/estudiante",
             {
-              nombres: this.nombres,
-              apellidos: this.apellidos,
+              nombres: this.nombres.trim(),
+              apellidos: this.apellidos.trim(),
               fechaNacimiento: this.fechaNacimiento,
-              cedula: this.cedula,
-              correo: this.correo,
-              telefono: this.telefono,
+              cedula: this.cedula.trim(),
+              correo: this.correo.trim(),
+              telefono: this.telefono.trim(),
               genero: this.genero,
               semestre: this.semestre,
               carrera: this.carrera,
@@ -592,15 +643,17 @@ export default {
                 authorization: "SGVUCE " + this.$cookies.get("ROLE_ADMIN"),
               },
             },
-            this.correo.trim(),
-            (this.nombres = " "),
-            (this.apellidos = " "),
-            (this.cedula = " "),
-            (this.correo = " "),
-            (this.telefono = " "),
-            (this.genero = " "),
-            (this.semestre = " "),
-            (this.carrera = " "),
+           
+           
+            (this.nombres = ""),
+            (this.apellidos = ""),
+            this.fechaNacimiento="",
+            (this.cedula = ""),
+            (this.correo = ""),
+            (this.telefono = ""),
+            (this.genero = ""),
+            (this.semestre = ""),
+            (this.carrera = ""),
             (this.esControlador = false)
           );
           this.llenarTabla(),
@@ -608,10 +661,11 @@ export default {
               content: "Estudiante añadido con éxito",
               color: "success",
             });
+           
           console.log(res);
         } catch (err) {
           console.log(err);
-          if (err.response.status == 403) {
+          if (err.response.data.mensaje == "Request processing failed; nested exception is java.lang.ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 1") {
             this.$notifier.showMessage({
               content: "Debe ingresar dos apellidos",
               color: "warning",

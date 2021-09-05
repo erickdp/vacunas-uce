@@ -81,7 +81,7 @@
                       justify="center"
                       style="margin-top: 10px"
                     >
-                      <v-col cols="2">
+                      <!-- <v-col cols="2">
                         <v-subheader
                           style="
                             font-weight: 600;
@@ -90,8 +90,8 @@
                           "
                           >Fecha primera Dosis:</v-subheader
                         >
-                      </v-col>
-                      <v-col cols="9" style="margin-top: -25px">
+                      </v-col> -->
+                      <!-- <v-col cols="9" style="margin-top: -25px">
                         <v-text-field
                           name="fecha"
                           v-model="fechaPrimeraDosis"
@@ -99,7 +99,7 @@
                           color="secondary"
                           disabled
                         />
-                      </v-col>
+                      </v-col> -->
                     </v-row>
                     <v-row
                       aling="center"
@@ -132,7 +132,7 @@
                       justify="center"
                       style="margin-top: 10px"
                     >
-                      <v-col cols="2">
+                      <!-- <v-col cols="2">
                         <v-subheader
                           style="
                             font-weight: 600;
@@ -141,15 +141,15 @@
                           "
                           >Fecha segunda Dosis:</v-subheader
                         >
-                      </v-col>
-                      <v-col cols="9" style="margin-top: -25px">
+                      </v-col> -->
+                      <!-- <v-col cols="9" style="margin-top: -25px">
                         <v-text-field
                           v-model="fechaSegundaDosis"
                           type="text"
                           color="secondary"
                           disabled
                         />
-                      </v-col>
+                      </v-col> -->
                     </v-row>
                     <v-row
                       aling="center"
@@ -213,7 +213,7 @@
                         style="padding-lef: 0px; margin-top: -20px"
                       >
                         <v-checkbox
-                          v-model="inoculacionVoluntaria"
+                          v-model="inoculacionVoluntaria1"
                           color="primary"
                           label="Si/No"
                           @click="editarCarnet"
@@ -260,7 +260,7 @@
                           "
                         >
                           RECUERDA EL HORARIO DE ATENCIÓN EN EL CENTRO DE
-                          VACUNACIÓN ES DE 8:00am A 17:00pm
+                          VACUNACIÓN ES DE 8:00am A 16:00pm
                         </p>
                       </v-col>
                     </v-row>
@@ -294,8 +294,11 @@
               <v-radio-group column>
                 <v-row>
                   <v-icon>mdi-file-pdf</v-icon>
-                  <v-radio label="PDF" value="pdf" @click="carnetPDF"></v-radio
-                ></v-row>
+
+                  <v-radio label="PDF" value="pdf" @click="carnetPDF"
+                    >hola</v-radio
+                  ></v-row
+                >
                 <v-row></v-row>
                 <v-row>
                   <v-icon>mdi-email</v-icon>
@@ -321,8 +324,15 @@
     </v-container>
   </v-app>
 </template>
+<script>
+var f = new Date();
+document.write(f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear());
+</script>
 
 <script>
+
+
+  
 import axios from "axios";
 export default {
   layout: "estudiante",
@@ -345,9 +355,10 @@ export default {
       fechaSegundaDosis: false,
       segundaDosis: "",
       items: [],
-      inoculacionVoluntaria: false,
+      inoculacionVoluntaria1: false,
       dialog: false,
       editedIndex: -1,
+      
       opciones: [
         { icon: "mdi-pancil", text: "PDF" },
         { text: "correo electrónico", icon: "mdi-email" },
@@ -356,25 +367,26 @@ export default {
         formTitle() {
           return "Certificado";
         },
+        
       },
       watch: {
         dialog(val) {
           val || this.close();
         },
-      },
-      editedItem: {
         
       },
+      editedItem: {},
     };
+
   },
 
   mounted() {
     this.obtenerDatos();
-this.obtenerNom();
-    
+    this.obtenerNom();
   },
 
   methods: {
+   
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -393,7 +405,16 @@ this.obtenerNom();
         });
         (this.nombres = resp.data.nombres),
           (this.apellidos = resp.data.apellidos);
-      } catch (err) {}
+      } catch (err) {
+        if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
+        }
+      }
     },
     async obtenerDatos() {
       let user = this.$cookies.get("ROLE_USER").usuario;
@@ -404,26 +425,47 @@ this.obtenerNom();
               "SGVUCE " + this.$cookies.get("ROLE_USER").token_acceso,
           },
         });
-      
-          (this.cedula = resp.data.cedula),
+        (this._id = resp.data._id),
+          (this.centroVacunacion = resp.data.centroVacunacion),
           (this.estudiante = resp.data.estudiante),
-          (this.fechaNacimiento = resp.data.fechaNacimiento),
-          (this.primeraDosis = resp.data.primeraDosis),
-            (this._id = resp.data._id),
-          (this.loteDosisUno = resp.data.loteDosisUno),
-          (this.loteDosisDos = resp.data.loteDosisDos),
-          (this.vacunadorPrimeraDosis = resp.data.vacunadorPrimeraDosis),
-          (this.vacunadorSegundaDosis = resp.data.vacunadorSegundaDosis),
-          (this.segundaDosis = resp.data.segundaDosis),
+          (this.nombreVacuna = resp.data.nombreVacuna),
           (this.fechaPrimeraDosis = resp.data.fechaPrimeraDosis),
           (this.fechaSegundaDosis = resp.data.fechaSegundasDosis),
-          (this.nombreVacuna = resp.data.nombreVacuna),
-          (this.centroVacunacion = resp.data.centroVacunacion),
-          (this.inoculacionVoluntaria = resp.data.inoculacionVoluntaria);
+          (this.vacunadorPrimeraDosis = resp.data.vacunadorPrimeraDosis),
+          (this.vacunadorSegundaDosis = resp.data.vacunadorSegundaDosis),
+          (this.loteDosisUno = resp.data.loteDosisUno),
+          (this.loteDosisDos = resp.data.loteDosisDos),
+          (this.cedula = resp.data.cedula),
+          (this.fechaNacimiento = resp.data.fechaNacimiento),
+          (this.inoculacionVoluntaria1 = resp.data.inoculacionVoluntaria);
+        if (resp.data.primeraDosis == true) {
+          this.primeraDosis = "Vacunado";
+        } else {
+          this.primeraDosis = "Pendiente";
+        }
+        if (resp.data.segundaDosis == true) {
+          this.segundaDosis = "Vacunado";
+        } else {
+          this.segundaDosis = "Pendiente";
+        }
 
         console.log(resp);
-       
-      } catch (err) {}
+      } catch (err) {
+        if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
+        }
+      }
+    },
+    async link(){
+      let user = this.$cookies.get("ROLE_USER").usuario;
+
+     
+      
     },
     async carnetPDF() {
       let user = this.$cookies.get("ROLE_USER").usuario;
@@ -434,8 +476,15 @@ this.obtenerNom();
               "SGVUCE " + this.$cookies.get("ROLE_USER").token_acceso,
           },
         });
+        window.location.href=`api/carnet/descargarCarnert/${user}`
+
+      
+
+        
         this.close();
-        console.log(resp);
+        
+        
+        
       } catch (err) {
         console.log("error" + err);
         if (err.response.status == 400) {
@@ -443,7 +492,7 @@ this.obtenerNom();
             content: "No ha completado su proceso de vacunación",
             color: "warning",
           });
-          this.close()
+          this.close();
         }
       }
     },
@@ -457,7 +506,10 @@ this.obtenerNom();
           },
         });
         this.close();
-        console.log(resp);
+         this.$notifier.showMessage({
+            content: "Se ha enviado el certificado a su correo electrónico",
+            color: "success",
+          });
       } catch (err) {
         console.log("error" + err);
         if (err.response.status == 400) {
@@ -465,31 +517,28 @@ this.obtenerNom();
             content: "No ha completado su proceso de vacunación",
             color: "warning",
           });
-          this.close()
+          this.close();
         }
       }
     },
     async editarCarnet() {
       try {
-       const resp= await this.$axios.put(
+        const resp = await this.$axios.put(
           "api/carnet",
           {
-            
             centroVacunacion: this.centroVacunacion,
-            _id:this._id,
+            _id: this._id,
             estudiante: this.estudiante,
-            cedula: this.cedula,
-            fechaNacimiento: this.fechaNacimiento,
-            primeraDosis: this.primeraDosis,
+            nombreVacuna: this.nombreVacuna,
             fechaPrimeraDosis: this.fechaPrimeraDosis,
             fechaSegundaDosis: this.fechaSegundaDosis,
             vacunadorPrimeraDosis: this.vacunadorPrimeraDosis,
-            nombreVacuna: this.nombreVacuna,
+            vacunadorSegundaDosis: this.segundaDosis,
+            primeraDosis: this.primeraDosis,
             loteDosisUno: this.loteDosisUno,
             loteDosisDos: this.loteDosisDos,
             segundaDosis: this.segundaDosis,
-            vacunadorSegundaDosis: this.segundaDosis,
-            inoculacionVoluntaria: this.inoculacionVoluntaria,
+            inoculacionVoluntaria: this.inoculacionVoluntaria1,
           },
           {
             headers: {

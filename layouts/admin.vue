@@ -190,6 +190,11 @@ export default {
           icon: "mdi-clipboard-check-multiple-outline",
           route: "/planVacunas",
           key: 5,
+        }, {
+          title: "Estadísticas",
+          icon: "mdi-chart-bar",
+          route: "/App",
+          key: 6,
         },
         // { title: 'Liderazgo', icon: 'mdi-pen', route: '/userUniversidad/liderazgo', key: 4 },
         // { title: 'Paso 2 - Actividades Prioritarias', icon: 'mdi-account-supervisor-outline', route: '/userUniversidad/pasoDos', key: 4 },

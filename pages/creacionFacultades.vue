@@ -72,8 +72,8 @@
                   label="Facultad"
                   outlined
                   rounded
-                  v-model="nombre"
-                  :rules="[() => !!nombre || 'Campo obligatorio']"
+                  v-model="nombref"
+                  :rules="[() => !!nombref || 'Campo obligatorio']"
                   type="text"
                   color="primary"
                 >
@@ -114,7 +114,7 @@
                 <v-dialog v-model="dialog" max-width="500px">
                   <v-card>
                     <v-card-title>
-                      <span class="text-h5">{{ formTitle }}</span>
+                      <!-- <span class="text-h5">{{ formTitle }}</span> -->
                     </v-card-title>
 
                     <v-card-text>
@@ -127,24 +127,22 @@
                               :rules="[() => !!nombre || 'Campo obligatorio']"
                             ></v-text-field>
                           </v-col>
-                        
                         </v-row>
                       </v-container>
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn color="blue darken-1" text @click="close">
-                        Cancelar
-                      </v-btn>
+                      <v-btn color="blue darken-1" text> Cancelar </v-btn>
 
                       <v-btn color="blue darken-1" text> Editar </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
-                
               </v-toolbar>
             </template>
-            
+            <template v-slot:no-data>
+              <v-btn color="primary" text> No hay registros </v-btn>
+            </template>
           </v-data-table>
         </v-flex>
       </v-layout>
@@ -161,7 +159,7 @@ export default {
       ok: false,
       nombre: "",
       carreras: [],
-     
+
       listaFacultades: [],
       dialog: false,
       dialogDelete: false,
@@ -173,7 +171,7 @@ export default {
           value: "nombre",
         },
         {
-          text: "Carrera",
+          text: "Carreras",
           value: "carreras",
         },
 
@@ -182,32 +180,14 @@ export default {
       search: "",
       desserts: [],
       editedIndex: -1,
-     
+    
     };
   },
   mounted() {
     this.obtenerListaFac();
-    this.sesion();
   },
 
-
-
-
   methods: {
-      async sesion() {
-      try {
-      } catch (error) {
-        if (err.response.status == 403) {
-          this.$cookies.remove("ROLE_ADMIN");
-          this.$notifier.showMessage({
-            content: `Su sesión ha expirado`,
-            color: "error",
-          });
-          this.$router.push("/login");
-        }
-      }
-    },
-   
     // guardarMod() {
     //   if (this.editedIndex > -1) {
     //     Object.assign(this.desserts[this.editedIndex], this.editedItem);
@@ -253,13 +233,18 @@ export default {
         });
       } catch (err) {
         console.log(err);
-          if (err.response.status == 403) {
-         
+        if (err.response.status == 404) {
           this.$notifier.showMessage({
             content: `No se ha ingresado facultades`,
             color: "error",
           });
-          
+        } else if (err.response.status == 403) {
+          this.$cookies.remove("ROLE_ADMIN");
+          this.$notifier.showMessage({
+            content: `Su sesión ha expirado`,
+            color: "error",
+          });
+          this.$router.push("/login");
         }
       }
     },
@@ -285,23 +270,26 @@ export default {
       this.desserts.push({
         nombre: this.nombre,
         carreras: this.carreras,
-        // carreras: this.carreras,
+       
       });
     },
+   
     async agregarFac() {
-      if (!this.nombre) {
+      if (!this.nombref) {
         this.$notifier.showMessage({
           content: "Rellene todos los datos",
           color: "error",
         });
       } else {
         try {
+          
+          
           console.log(this.carreras.type);
           await this.$axios.post(
             "api/facultad",
             {
-              nombre: this.nombre,
-              carreras: this.carreras,
+              nombre: this.nombref.trim(),
+              // carreras: this.carreras,
             },
 
             {
@@ -310,21 +298,23 @@ export default {
               },
             }
           );
+
+          this.nombref = " ";
+
           this.obtenerListaFac();
           this.llenarTabla();
-          (this.nombre = " "),
-            (this.carreras = " "),
-            this.$notifier.showMessage({
-              content: "Facultad añadida",
-              color: "success",
-            });
+          this.$notifier.showMessage({
+            content: "Facultad añadida",
+            color: "success",
+          });
+        
         } catch (err) {
           console.log(err);
-          if(err.response.status==500){
-          this.$notifier.showMessage({
-            content: `La facultad ${this.nombre} ya existe`,
-            color: "error",
-          });
+          if (err.response.status == 500) {
+            this.$notifier.showMessage({
+              content: `La facultad ${this.nombref} ya existe`,
+              color: "error",
+            });
           }
         }
       }
@@ -341,7 +331,7 @@ export default {
             `api/facultad/${this.nombre}/${this.carreras}`,
             {
               nombre: this.nombre,
-              carreras: this.carreras,
+              carreras: this.carreras.trim(),
             },
 
             {
@@ -353,18 +343,18 @@ export default {
 
           this.obtenerListaFac();
           this.carreras.trim(),
-          (this.nombre = " "),
+            (this.nombre = " "),
             (this.carreras = " "),
             this.$notifier.showMessage({
               content: "Carrera añadida",
               color: "success",
             });
         } catch (err) {
-             if(err.response.status==400){
-          this.$notifier.showMessage({
-            content: `La carrera ${this.carreras} ya existe`,
-            color: "error",
-          });
+          if (err.response.status == 400) {
+            this.$notifier.showMessage({
+              content: `La carrera ${this.carreras} ya existe`,
+              color: "error",
+            });
           }
         }
       }
